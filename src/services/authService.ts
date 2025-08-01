@@ -10,7 +10,8 @@ interface RegisterData {
   name: string;
   email: string;
   password: string;
-  role: string;
+  role?: string;
+  acceptTerms: boolean;
 }
 
 interface ChangePasswordData {
@@ -27,8 +28,8 @@ export const authService = {
     return apiClient.post<AuthResponse>('/auth/register', data);
   },
 
-  async getProfile(): Promise<User> {
-    return apiClient.get<User>('/auth/profile');
+  async getProfile(): Promise<AuthResponse> {
+    return apiClient.get<AuthResponse>('/auth/profile');
   },
 
   async updateProfile(data: Partial<User>): Promise<User> {
@@ -45,5 +46,14 @@ export const authService = {
 
   async resetPassword(resetToken: string, newPassword: string): Promise<void> {
     return apiClient.put<void>(`/auth/reset-password/${resetToken}`, { password: newPassword });
+  },
+  async socialLogin(email: string): Promise<AuthResponse> {
+    return apiClient.post<AuthResponse>('/auth/forgot-password', { email });
+  },
+  async verifyEmail(email: string): Promise<any> {
+    return apiClient.post<any>('/auth/forgot-password', { email });
+  },
+  async resendVerification(email: string): Promise<void> {
+    return apiClient.post<void>('/auth/forgot-password', { email });
   },
 };

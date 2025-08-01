@@ -1,5 +1,5 @@
 // API configuration and base client
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'http://localhost:12000/api';
 
 // Create API client with interceptors
 class ApiClient {

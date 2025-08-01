@@ -7,6 +7,7 @@ export interface User {
   avatar?: string;
   createdAt: string;
   updatedAt: string;
+  isVerified:boolean;
 }
 
 export interface Product {
@@ -122,6 +123,7 @@ export interface AuthResponse {
   token: string;
   user: User;
   refreshToken?: string;
+  data?:any;
 }
 
 export interface ApiResponse<T> {
