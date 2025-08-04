@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import { RegisterPage } from "./pages/auth/RegisterPage";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { VendorDashboard } from "./pages/vendor/VendorDashboard";
+import { VendorProductsPage } from "./pages/vendor/VendorProductsPage";
 
 const queryClient = new QueryClient();
 
@@ -32,13 +33,13 @@ const App = () => (
                 </Route>
                 <Route path="/vendor" element={<VendorDashboard />} >
                   <Route path=":id" element={<Outlet />} >
-                    <Route path="dashbroad" element={<VendorShopDashbroad />} />
+                    <Route path="dashboard" element={<Outlet />} />
                     <Route path="products" element={<VendorProductsPage />} />
-                    <Route path="revenue" element={<VendorRevenuePage />} />
+                    {/* <Route path="revenue" element={<VendorRevenuePage />} />
                     <Route path="delivery" element={<VendorDeliveryPage />} />
                     <Route path="staff" element={<VendorStaffPage />} />
                     <Route path="orders" element={<VendorOrdersPage />} />
-                    <Route path="products" element={<VendorProductsPage />} />
+                    <Route path="products" element={<VendorProductsPage />} /> */}
                   </Route>
                 </Route>
                 <Route path="*" element={<NotFound />} />

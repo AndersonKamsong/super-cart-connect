@@ -1,6 +1,7 @@
 // Core application types
 export interface User {
   id: string;
+  _id: string;
   email: string;
   name: string;
   role: 'admin' | 'vendor' | 'customer' | 'delivery';
@@ -12,6 +13,7 @@ export interface User {
 
 export interface Product {
   id: string;
+  _id: string;
   name: string;
   description: string;
   price: number;
