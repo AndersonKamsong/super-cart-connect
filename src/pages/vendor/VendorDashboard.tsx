@@ -26,6 +26,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Shop } from '@/types/shop';
+import { API_BASE_URL } from '@/lib/api';
 
 export const VendorDashboard = () => {
   const { user, logout } = useAuth();
@@ -38,6 +39,7 @@ export const VendorDashboard = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [newShopData, setNewShopData] = useState<ShopCreatePayload>({
@@ -93,43 +95,19 @@ export const VendorDashboard = () => {
     navigate(`/vendor/${shopId}/dashboard`);
   };
 
-  const handleImageUpload = async (file: File) => {
-    if (!file) return;
-
-    try {
-      setUploadingImage(true);
-      const formData = new FormData();
-      formData.append('image', file);
-
-      // In a real app, you would upload to your server first
-      // For demo, we'll just create a local URL
-      const imageUrl = URL.createObjectURL(file);
-      setImagePreview(imageUrl);
-      setNewShopData(prev => ({ ...prev, logo: imageUrl }));
-
-      toast({
-        title: "Success",
-        description: "Image uploaded successfully",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to upload image",
-        variant: "destructive",
-      });
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      handleImageUpload(e.target.files[0]);
+      const file = e.target.files[0];
+      console.log(e.target.files[0])
+      setSelectedImageFile(file);
+      const imageUrl = URL.createObjectURL(file);
+      setImagePreview(imageUrl);
     }
   };
 
   const removeImage = () => {
     setImagePreview(null);
+    setSelectedImageFile(null);
     setNewShopData(prev => ({ ...prev, logo: '' }));
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -148,11 +126,34 @@ export const VendorDashboard = () => {
 
     try {
       setLoading(true);
-      const createdShop = await shopService.createShop(newShopData);
-      console.log(createdShop.data)
+
+      const formData = new FormData();
+
+      // Append the image file if it exists
+      if (selectedImageFile) {
+        formData.append('image', selectedImageFile); // Changed from 'logo' to 'image'
+      }
+
+      // Append all other fields directly to FormData
+      formData.append('name', newShopData.name);
+      formData.append('description', newShopData.description);
+      formData.append('address[street]', newShopData.address.street);
+      formData.append('address[city]', newShopData.address.city);
+      formData.append('address[state]', newShopData.address.state);
+      formData.append('address[country]', newShopData.address.country);
+      formData.append('contactInfo[email]', newShopData.contactInfo.email);
+      formData.append('contactInfo[phone]', newShopData.contactInfo.phone);
+      formData.append('paymentMethods[cash]', String(newShopData.paymentMethods.cash));
+      formData.append('paymentMethods[card]', String(newShopData.paymentMethods.card));
+      formData.append('paymentMethods[mobileMoney]', String(newShopData.paymentMethods.mobileMoney));
+
+      const createdShop = await shopService.createShop(formData);
       setShops([...shops, createdShop.data]);
+
+      // Reset form
       setCreateModalOpen(false);
       setImagePreview(null);
+      setSelectedImageFile(null);
       setNewShopData({
         name: '',
         description: '',
@@ -178,7 +179,7 @@ export const VendorDashboard = () => {
         title: "Success",
         description: "Shop created successfully",
       });
-      handleShopSelect(createdShop?.data?._id);
+      handleShopSelect(createdShop.data._id);
     } catch (error) {
       toast({
         title: "Error",
@@ -399,10 +400,10 @@ export const VendorDashboard = () => {
               </Button>
               <Button
                 size="sm"
-                onClick={() => navigate(`/vendor/${activeShop}/products/new`)}
+                onClick={() => setCreateModalOpen(true)}
               >
                 <Plus className="h-4 w-4 mr-2" />
-                New Product
+                New Shop
               </Button>
             </div>
           )}
@@ -427,7 +428,7 @@ export const VendorDashboard = () => {
                       ${activeShop === shop._id ? 'bg-primary/10 text-primary border-primary' : 'bg-white hover:bg-gray-50 text-gray-700 hover:border-gray-300'}`}
                   >
                     <img
-                      src={shop.logo || `https://placehold.co/400x200/e0e0e0/000000?text=${shop.name.charAt(0)}`}
+                      src={`${API_BASE_URL}/../uploads/shops/${shop.logo}`}
                       alt={`Shop ${shop.name}`}
                       className="w-full h-32 object-cover rounded-md mb-2"
                       onError={(e) => {

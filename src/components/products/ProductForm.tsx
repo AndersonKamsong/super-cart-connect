@@ -25,6 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Product, ProductFormValues } from '@/types/products';
 import { useEffect, useState } from 'react';
 import { categoryService } from '@/services/categoryService';
+import { API_BASE_URL } from '@/lib/api';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Product name is required'),
@@ -40,10 +41,15 @@ const formSchema = z.object({
   isActive: z.boolean().default(true),
   isFeatured: z.boolean().default(false),
   isBestseller: z.boolean().default(false),
-  images: z.array(z.object({
-    url: z.string(),
-    alt: z.string().optional(),
-  })).min(1, 'At least one image is required'),
+  images: z.array(
+    z.union([
+      z.instanceof(File),
+      z.object({
+        url: z.string(),
+        alt: z.string().optional(),
+      }),
+    ])
+  ).min(1, 'At least one image is required'),
   variants: z.array(z.object({
     options: z.record(z.string()),
     price: z.number(),
@@ -57,6 +63,10 @@ interface ProductFormProps {
   onSubmit: (values: ProductFormValues) => Promise<void>;
   onCancel: () => void;
   isSubmitting: boolean;
+  removedImages;
+  setRemovedImages;
+  files;
+  setFiles;
 }
 
 export const ProductForm = ({
@@ -64,10 +74,12 @@ export const ProductForm = ({
   onSubmit,
   onCancel,
   isSubmitting,
+  removedImages,
+  setRemovedImages,
+  files,
+  setFiles,
 }: ProductFormProps) => {
   const { toast } = useToast();
-  const [files, setFiles] = useState<File[]>([]);
-  const [removedImages, setRemovedImages] = useState<string[]>([]);
   const [variantDialogOpen, setVariantDialogOpen] = useState(false);
   const [categories, setCategories] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -126,6 +138,7 @@ export const ProductForm = ({
       ...newFiles.map(file => ({
         url: URL.createObjectURL(file),
         alt: file.name,
+        file: file,
       }))
     ]);
   };
@@ -134,21 +147,39 @@ export const ProductForm = ({
     const currentImages = form.getValues('images');
 
     if (isExisting) {
-      // Mark existing image for removal
-      setRemovedImages([...removedImages, currentImages[index].url]);
+      if (typeof currentImages[index] === 'object' && 'url' in currentImages[index]) {
+        setRemovedImages([...removedImages, (currentImages[index] as { url: string }).url]);
+      }
     } else {
-      // Remove new file
       const newFiles = [...files];
-      newFiles.splice(index - currentImages.length, 1);
+      newFiles.splice(index - (currentImages.length - files.length), 1);
       setFiles(newFiles);
     }
 
-    // Update form
     form.setValue(
       'images',
       currentImages.filter((_, i) => i !== index)
     );
   };
+  // const handleRemoveImage = (index: number, isExisting: boolean) => {
+  //   const currentImages = form.getValues('images');
+
+  //   if (isExisting) {
+  //     // Mark existing image for removal
+  //     setRemovedImages([...removedImages, currentImages[index].url]);
+  //   } else {
+  //     // Remove new file
+  //     const newFiles = [...files];
+  //     newFiles.splice(index - currentImages.length, 1);
+  //     setFiles(newFiles);
+  //   }
+
+  //   // Update form
+  //   form.setValue(
+  //     'images',
+  //     currentImages.filter((_, i) => i !== index)
+  //   );
+  // };
 
   return (
     <Form {...form}>
@@ -162,10 +193,15 @@ export const ProductForm = ({
                 {form.watch('images').map((image, index) => (
                   <div key={index} className="relative group">
                     <img
-                      src={image.url}
-                      alt={image.alt}
+                      src={
+                        image.url.startsWith('blob:')
+                          ? image.url
+                          : `${API_BASE_URL}/..${image.url}`
+                      }
+                      alt={image.alt || 'Product Image'}
                       className="aspect-square w-full rounded-md object-cover"
                     />
+
                     <button
                       type="button"
                       onClick={() => handleRemoveImage(index, !image.url.startsWith('blob:'))}
@@ -345,7 +381,7 @@ export const ProductForm = ({
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {categories.map(item=>(
+                      {categories.map(item => (
                         <SelectItem value={item._id}>{item.name}</SelectItem>
                       ))}
                     </SelectContent>

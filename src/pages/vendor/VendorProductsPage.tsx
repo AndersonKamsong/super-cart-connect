@@ -40,6 +40,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { ProductForm } from '@/components/products/ProductForm';
+import { ProductFormValues } from '@/types/products';
+import { API_BASE_URL } from '@/lib/api';
 
 export const VendorProductsPage = () => {
   const { id } = useParams();
@@ -53,6 +55,8 @@ export const VendorProductsPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [removedImages, setRemovedImages] = useState<string[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
 
   useEffect(() => {
     fetchShopProducts();
@@ -97,10 +101,12 @@ export const VendorProductsPage = () => {
 
   const handleEditProduct = (product: Product) => {
     setCurrentProduct(product);
+    setFiles([])
     setIsFormOpen(true);
   };
 
   const handleAddProduct = () => {
+    setFiles([])
     setCurrentProduct(null);
     setIsFormOpen(true);
   };
@@ -139,22 +145,128 @@ export const VendorProductsPage = () => {
     }
   };
 
-  const handleFormSubmit = async (values: any) => {
+  // const handleFormSubmit = async (values: any) => {
+  //   try {
+  //     setIsSubmitting(true);
+  //     if (currentProduct) {
+  //       await productService.updateProduct(currentProduct._id, values);
+  //       toast({
+  //         title: "Success",
+  //         description: "Product updated successfully",
+  //       });
+  //     } else {
+  //       await productService.createProduct({ ...values, shop: id });
+  //       toast({
+  //         title: "Success",
+  //         description: "Product created successfully",
+  //       });
+  //     }
+  //     setIsFormOpen(false);
+  //     fetchShopProducts();
+  //   } catch (error) {
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to save product",
+  //       variant: "destructive",
+  //     });
+  //   } finally {
+  //     setIsSubmitting(false);
+  //   }
+  // };
+
+  async function blobUrlToFile(blobUrl: string, filename: string): Promise<File> {
+    // Fetch the blob from the blob URL
+    const response = await fetch(blobUrl);
+    const blob = await response.blob();
+
+    // Get the file type from the blob
+    const extension = blob.type.split('/')[1] || 'png';
+    const actualFilename = filename.endsWith(extension)
+      ? filename
+      : `${filename}.${extension}`;
+
+    // Convert blob to File
+    return new File([blob], actualFilename, { type: blob.type });
+  }
+
+  const handleFormSubmit = async (values: ProductFormValues) => {
     try {
       setIsSubmitting(true);
+      const formData = new FormData();
+
+      // 1. First handle images
+      const imageFiles: File[] = files;
+      const existingImages: Array<{ url: string, alt?: string }> = [];
+      console.log("files", files)
+      values.images.forEach(async image => {
+        if (image instanceof File) {
+          // imageFiles.push(image);
+        } else if (typeof image === 'object' && image.url) {
+          // Convert blob URLs to Files if needed
+          if (image.url.startsWith('blob:')) {
+            // You'll need to implement this function (see below)
+            const file = await blobUrlToFile(image.url, image.alt || 'product-image');
+            // imageFiles.push(file);
+          } else {
+            existingImages.push(image);
+          }
+        }
+      });
+
+      // Append new image files
+      console.log("imageFiles", imageFiles)
+      imageFiles.forEach(file => {
+        formData.append('images', file);
+      });
+
+      // Append existing images
+      console.log("existingImages", existingImages)
+      if (existingImages.length > 0) {
+        formData.append('existingImages', JSON.stringify(existingImages));
+      }
+
+      // 2. Append all other fields
+      Object.entries(values).forEach(([key, value]) => {
+        if (key !== 'images') { // We've already handled images
+          if (key === 'variants' || key === 'tags') {
+            formData.append(key, JSON.stringify(value));
+          } else if (value !== undefined && value !== null) {
+            formData.append(key, value.toString());
+          }
+        }
+      });
+
+      // 3. Append removed images if any
+      if (removedImages.length > 0) {
+        formData.append('removedImages', JSON.stringify(removedImages));
+      }
+
+      // 4. Add shop ID for new products
+      if (!currentProduct && id) {
+        formData.append('shop', id);
+      }
+
+      // 5. Set headers and submit
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+
       if (currentProduct) {
-        await productService.updateProduct(currentProduct._id, values);
+        await productService.updateProduct(currentProduct._id, formData, config);
         toast({
           title: "Success",
           description: "Product updated successfully",
         });
       } else {
-        await productService.createProduct({ ...values, shop: id });
+        await productService.createProduct(formData, config);
         toast({
           title: "Success",
           description: "Product created successfully",
         });
       }
+
       setIsFormOpen(false);
       fetchShopProducts();
     } catch (error) {
@@ -179,12 +291,16 @@ export const VendorProductsPage = () => {
             </DialogTitle>
           </DialogHeader>
           <div className='h-[80hv] overflow-auto'>
-          <ProductForm
-            initialValues={currentProduct || undefined}
-            onSubmit={handleFormSubmit}
-            onCancel={() => setIsFormOpen(false)}
-            isSubmitting={isSubmitting}
-          />
+            <ProductForm
+              initialValues={currentProduct || undefined}
+              removedImages={removedImages}
+              setRemovedImages={setRemovedImages}
+              files={files}
+              setFiles={setFiles}
+              onSubmit={handleFormSubmit}
+              onCancel={() => setIsFormOpen(false)}
+              isSubmitting={isSubmitting}
+            />
           </div>
         </DialogContent>
       </Dialog>
@@ -308,15 +424,21 @@ export const VendorProductsPage = () => {
                   <TableCell>
                     {product.images?.[0] ? (
                       <img
-                        src={product.images[0]}
+                        src={`${API_BASE_URL}/..${product.images[0].url}`}
                         alt={product.name}
                         className="h-10 w-10 rounded-md object-cover"
+                        onError={(e) => {
+                          e.target.onerror = null; // prevent infinite loop
+                          e.target.style.display = 'none';
+                          e.target.nextElementSibling.style.display = 'flex';
+                        }}
                       />
-                    ) : (
-                      <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center">
-                        <Package className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                    )}
+                    ) : null}
+
+                    <div className="h-10 w-10 rounded-md bg-muted flex items-center justify-center" style={{ display: product.images?.[0] ? 'none' : 'flex' }}>
+                      <Package className="h-5 w-5 text-muted-foreground" />
+                    </div>
+
                   </TableCell>
                   <TableCell className="font-medium">{product.name}</TableCell>
                   <TableCell>${product.price.toFixed(2)}</TableCell>
@@ -355,7 +477,7 @@ export const VendorProductsPage = () => {
                           )}
                           {product.isActive ? 'Deactivate' : 'Activate'}
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           className="text-red-500"
                           onClick={() => handleDeleteProduct(product._id)}
                         >

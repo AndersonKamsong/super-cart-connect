@@ -1,5 +1,5 @@
 // src/lib/api.ts
-const API_BASE_URL ='http://localhost:12000/api';
+export const API_BASE_URL = 'http://localhost:12000/api';
 
 class ApiClient {
   private baseURL: string;
@@ -16,8 +16,8 @@ class ApiClient {
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
     const token = localStorage.getItem('auth_token');
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+    const headers = {
+      'Content-Type': 'multipart/form-data',
       ...(token && { Authorization: `Bearer ${token}` }),
       ...options.headers,
     };
