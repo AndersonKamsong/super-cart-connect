@@ -424,7 +424,7 @@ export const VendorProductsPage = () => {
                   <TableCell>
                     {product.images?.[0] ? (
                       <img
-                        src={`${API_BASE_URL}/..${product.images[0].url}`}
+                        src={`${API_BASE_URL}/../uploads/products/${product.images[0].url}`}
                         alt={product.name}
                         className="h-10 w-10 rounded-md object-cover"
                         onError={(e) => {

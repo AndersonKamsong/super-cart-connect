@@ -30,6 +30,7 @@ class ApiClient {
       delete headers['Content-Type'];
     } else if (data) {
       body = JSON.stringify(data);
+      headers['Content-Type'] = 'application/json';
     }
 
     const config: RequestInit = {

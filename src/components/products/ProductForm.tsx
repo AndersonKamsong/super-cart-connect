@@ -196,7 +196,7 @@ export const ProductForm = ({
                       src={
                         image.url.startsWith('blob:')
                           ? image.url
-                          : `${API_BASE_URL}/..${image.url}`
+                          : `${API_BASE_URL}/../uploads/products/${image.url}`
                       }
                       alt={image.alt || 'Product Image'}
                       className="aspect-square w-full rounded-md object-cover"

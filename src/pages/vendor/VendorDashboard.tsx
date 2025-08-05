@@ -228,7 +228,7 @@ export const VendorDashboard = () => {
       }));
     }
   };
-
+  // const navShops = shops
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Mobile sidebar toggle */}
@@ -312,21 +312,21 @@ export const VendorDashboard = () => {
                 <span>Staff Management</span>
               </Link>
 
-              <Link
+              {/* <Link
                 to={`/vendor/${activeShop}/delivery`}
                 className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700 hover:text-primary"
               >
                 <Truck className="h-5 w-5" />
                 <span>Delivery Personnel</span>
-              </Link>
+              </Link> */}
 
-              <Link
+              {/* <Link
                 to={`/vendor/${activeShop}/revenue`}
                 className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 text-gray-700 hover:text-primary"
               >
                 <DollarSign className="h-5 w-5" />
                 <span>Revenue</span>
-              </Link>
+              </Link> */}
 
               <div className="mt-6 mb-2 px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Settings
@@ -347,7 +347,7 @@ export const VendorDashboard = () => {
             My Shops
           </div>
 
-          {shops.map((shop) => (
+          {shops.reverse().slice(0,3).map((shop) => (
             <button
               key={shop._id}
               onClick={() => handleShopSelect(shop._id)}

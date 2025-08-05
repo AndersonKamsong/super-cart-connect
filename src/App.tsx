@@ -12,6 +12,10 @@ import { RegisterPage } from "./pages/auth/RegisterPage";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { VendorDashboard } from "./pages/vendor/VendorDashboard";
 import { VendorProductsPage } from "./pages/vendor/VendorProductsPage";
+import { ShopStaffManagement } from "./pages/vendor/ShopStaffManagement";
+import { ShopSettings } from "./pages/vendor/ShopSettings";
+import { ShopOrders } from "./pages/vendor/ShopOrderManagementPage";
+import { ShopAnalytics } from "./pages/vendor/ShopAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -33,12 +37,12 @@ const App = () => (
                 </Route>
                 <Route path="/vendor" element={<VendorDashboard />} >
                   <Route path=":id" element={<Outlet />} >
-                    <Route path="dashboard" element={<Outlet />} />
+                    <Route path="dashboard" element={<ShopAnalytics />} />
                     <Route path="products" element={<VendorProductsPage />} />
+                    <Route path="staff" element={<ShopStaffManagement />} />
+                    <Route path="settings" element={<ShopSettings />} />
+                    <Route path="orders" element={<ShopOrders />} />
                     {/* <Route path="revenue" element={<VendorRevenuePage />} />
-                    <Route path="delivery" element={<VendorDeliveryPage />} />
-                    <Route path="staff" element={<VendorStaffPage />} />
-                    <Route path="orders" element={<VendorOrdersPage />} />
                     <Route path="products" element={<VendorProductsPage />} /> */}
                   </Route>
                 </Route>

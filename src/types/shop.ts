@@ -1,79 +1,196 @@
 export interface Address {
   street?: string;
-  city?: string;
+  city: string;
   state?: string;
-  country?: string;
+  country: string;
+  postalCode?: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
 }
 
 export interface ContactInfo {
-  email?: string;
+  email: string;
   phone?: string;
+  website?: string;
+  socialMedia?: {
+    facebook?: string;
+    instagram?: string;
+    twitter?: string;
+  };
 }
 
+export type StaffRole = 'manager' | 'cashier' | 'inventory_manager' | 'delivery_personnel' | 'admin';
+
 export interface StaffMember {
-  user: string; // User ID
-  role?: 'manager' | 'cashier' | 'inventory_manager' | 'other';
-  permissions?: string[];
+  _id?: string;
+  user: any; // User ID
+  role: StaffRole;
+  permissions: string[];
+  joinDate?: Date;
+  active?: boolean;
+  customTitle?: string;
 }
 
 export interface DeliveryPersonnel {
+  _id?: string;
   user: string; // User ID
-  vehicleType?: string;
+  vehicleType?: 'bicycle' | 'motorcycle' | 'car' | 'truck';
+  licensePlate?: string;
   isAvailable?: boolean;
+  currentLocation?: {
+    lat: number;
+    lng: number;
+  };
 }
 
 export interface PaymentMethods {
-  cash?: boolean;
-  card?: boolean;
-  mobileMoney?: boolean;
+  cash: boolean;
+  card: boolean;
+  mobileMoney: boolean;
+  bankTransfer?: boolean;
+}
+
+export type ShopStatus = 'active' | 'inactive' | 'suspended' | 'pending_verification';
+
+export interface ShopHours {
+  day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+  open: string;
+  close: string;
+  isClosed: boolean;
+}
+
+export interface ShopSettings {
+  notifications: {
+    email: boolean;
+    sms: boolean;
+    push: boolean;
+  };
+  inventoryManagement: boolean;
+  lowStockThreshold: number;
 }
 
 export interface Shop {
   _id: string;
   name: string;
   description: string;
+  slug?: string;
   logo?: string;
-  address?: Address;
-  contactInfo?: ContactInfo;
+  coverImage?: string;
+  images?: string[];
+  address: Address;
+  contactInfo: ContactInfo;
   owner: string; // User ID
   staff?: StaffMember[];
   deliveryPersonnel?: DeliveryPersonnel[];
-  status?: 'active' | 'inactive' | 'suspended';
+  status: ShopStatus;
   categories?: string[]; // Category IDs
-  paymentMethods?: PaymentMethods;
+  paymentMethods: PaymentMethods;
+  businessHours?: ShopHours[];
+  settings?: ShopSettings;
   createdAt?: Date;
   updatedAt?: Date;
   // Virtual fields
-  products?: string[]; // Product IDs - this would be populated if you're using the virtual
+  products?: string[]; // Product IDs
+  productCount?: number;
+  orderCount?: number;
 }
 
-// For creating a new shop (might omit some required fields that are set server-side)
+// DTOs
 export interface CreateShopDto {
   name: string;
   description: string;
   logo?: string;
-  address?: Address;
-  contactInfo?: ContactInfo;
-  // owner is typically set server-side based on authenticated user
+  address: Address;
+  contactInfo: ContactInfo;
   paymentMethods?: PaymentMethods;
 }
 
-// For updating a shop
 export interface UpdateShopDto {
   name?: string;
   description?: string;
   logo?: string;
   address?: Address;
   contactInfo?: ContactInfo;
-  status?: 'active' | 'inactive' | 'suspended';
+  status?: ShopStatus;
   paymentMethods?: PaymentMethods;
 }
 
-// For shop listings (might include fewer fields)
 export interface ShopSummary {
   _id: string;
   name: string;
   description: string;
   logo?: string;
-  status?: string;
+  status: ShopStatus;
+  productCount?: number;
+}
+
+// types/shop.ts
+export interface BusinessHours {
+  day: 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday';
+  open: string;
+  close: string;
+  isClosed: boolean;
+}
+
+export interface ShopSettings {
+  notifications: {
+    email: boolean;
+    sms: boolean;
+    push: boolean;
+  };
+  inventoryManagement: boolean;
+  lowStockThreshold: number;
+}
+
+export interface UpdateShopSettingsPayload {
+  name?: string;
+  description?: string;
+  logo?: string;
+  address?: Address;
+  contactInfo?: ContactInfo;
+  paymentMethods?: PaymentMethods;
+  businessHours?: BusinessHours[];
+  settings?: Partial<ShopSettings>;
+}
+
+export interface ShopStats {
+  overview: {
+    totalProducts: number;
+    totalOrders: number;
+    totalRevenue: number;
+  };
+  orderStatus: Array<{
+    status: string;
+    count: number;
+    revenue: number;
+  }>;
+  monthlySales: Array<{
+    month: string;
+    count: number;
+    revenue: number;
+  }>;
+  topProducts: Array<{
+    name: string;
+    stock: number;
+    sold: number;
+  }>;
+  staffPerformance: Array<{
+    staffId: string;
+    name: string;
+    email: string;
+    orderCount: number;
+    totalRevenue: number;
+  }>;
+}
+
+export interface ProductAnalytics {
+  productId: string;
+  name: string;
+  sales: Array<{
+    month: number;
+    year: number;
+    quantity: number;
+  }>;
 }
