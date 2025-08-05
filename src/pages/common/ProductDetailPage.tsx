@@ -15,7 +15,7 @@ import '../../assets/css/ProductDetailPage.css';
 const ProductDetailPage = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { addToCart } = useCart();
+    const { addToCart,cartItems } = useCart();
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -52,18 +52,20 @@ const ProductDetailPage = () => {
 
     const handleAddToCart = () => {
         if (!product) return;
-
         addToCart({
             productId: product._id || product.id,
+            shopId:product.shop,
             variantId: selectedVariant,
-            quantity,
+            quantity: quantity,
             price: product.price,
             name: product.name,
             image: product.images?.[0]?.url || ''
         });
 
+        console.log("cartItems",cartItems)
+
         // Optional: Navigate to cart or show notification
-        // navigate('/cart');
+        navigate('/cart');
     };
 
     const handleQuantityChange = (newQuantity: number) => {

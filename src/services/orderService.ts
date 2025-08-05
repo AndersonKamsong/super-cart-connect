@@ -1,8 +1,8 @@
 // services/order.service.ts
 import { apiClient } from '@/lib/api';
-import { 
-  Order, 
-  CreateOrderDto, 
+import {
+  Order,
+  CreateOrderDto,
   UpdateOrderStatusDto,
   OrderQueryParams
 } from '@/types/order';
@@ -20,12 +20,12 @@ export const orderService = {
 
   // Get single order
   getOrder: async (id: string): Promise<Order> => {
-    return apiClient.get<Order>(`/orders/${id}`,{});
+    return apiClient.get<Order>(`/orders/${id}`, {});
   },
 
   // Update order status
-  updateOrderStatus: async (id: string, data: UpdateOrderStatusDto): Promise<Order> => {
-    return apiClient.put<Order>(`/orders/${id}/status`, data);
+  updateOrderStatus: async (id: string, shopId: string, data: UpdateOrderStatusDto): Promise<Order> => {
+    return apiClient.put<Order>(`/orders/${id}/status/${shopId}`, data);
   },
 
   // Get orders for a shop
@@ -39,16 +39,16 @@ export const orderService = {
   },
 
   // Calculate order totals (client-side)
-  calculateTotals: (items: CreateOrderDto['items'], tax = 0, deliveryFee = 0, discount = 0) => {
-    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const total = subtotal + tax + deliveryFee - discount;
-    
-    return {
-      subtotal,
-      tax,
-      deliveryFee,
-      discount,
-      total
-    };
-  }
+  // calculateTotals: (items: CreateOrderDto['items'], tax = 0, deliveryFee = 0, discount = 0) => {
+  //   const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  //   const total = subtotal + tax + deliveryFee - discount;
+
+  //   return {
+  //     subtotal,
+  //     tax,
+  //     deliveryFee,
+  //     discount,
+  //     total
+  //   };
+  // }
 };

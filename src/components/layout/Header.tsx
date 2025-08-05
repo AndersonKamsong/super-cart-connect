@@ -13,13 +13,13 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { 
-  ShoppingCart, 
-  Bell, 
-  Sun, 
-  Moon, 
-  User, 
-  Settings, 
+import {
+  ShoppingCart,
+  Bell,
+  Sun,
+  Moon,
+  User,
+  Settings,
   LogOut,
   Store,
   Shield,
@@ -28,8 +28,10 @@ import {
   Menu
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { useCart } from '@/contexts/CartContext';
 
 export const Header: React.FC = () => {
+  const { totalItems,cartItems } = useCart();
   const { user, logout, isAuthenticated, isAdmin, isVendor, isDelivery } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
@@ -39,7 +41,7 @@ export const Header: React.FC = () => {
     logout();
     navigate('/');
   };
-
+  console.log("cartItems",cartItems)
   const getDashboardLink = () => {
     if (isAdmin) return '/admin';
     if (isVendor) return '/vendor';
@@ -96,7 +98,7 @@ export const Header: React.FC = () => {
             Shops
           </Link>
           {isAuthenticated && (
-            <Link to="/orders" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
+            <Link to="/my-orders" className="text-sm font-medium text-foreground/80 hover:text-primary transition-colors">
               My Orders
             </Link>
           )}
@@ -131,7 +133,7 @@ export const Header: React.FC = () => {
                   <Link to="/cart">
                     <ShoppingCart className="h-5 w-5" />
                     <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center">
-                      0
+                      {totalItems}
                     </Badge>
                   </Link>
                 </Button>
@@ -233,30 +235,30 @@ export const Header: React.FC = () => {
               />
             </div>
             <nav className="flex flex-col space-y-2">
-              <Link 
-                to="/products" 
+              <Link
+                to="/products"
                 className="px-3 py-2 rounded-md text-sm font-medium hover:bg-accent"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Products
               </Link>
-              <Link 
-                to="/categories" 
+              <Link
+                to="/categories"
                 className="px-3 py-2 rounded-md text-sm font-medium hover:bg-accent"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Categories
               </Link>
-              <Link 
-                to="/shops" 
+              <Link
+                to="/shops"
                 className="px-3 py-2 rounded-md text-sm font-medium hover:bg-accent"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Shops
               </Link>
               {isAuthenticated && (
-                <Link 
-                  to="/orders" 
+                <Link
+                  to="/orders"
                   className="px-3 py-2 rounded-md text-sm font-medium hover:bg-accent"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -265,15 +267,15 @@ export const Header: React.FC = () => {
               )}
               {!isAuthenticated && (
                 <>
-                  <Link 
-                    to="/auth/login" 
+                  <Link
+                    to="/auth/login"
                     className="px-3 py-2 rounded-md text-sm font-medium hover:bg-accent"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Login
                   </Link>
-                  <Link 
-                    to="/auth/register" 
+                  <Link
+                    to="/auth/register"
                     className="px-3 py-2 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90"
                     onClick={() => setMobileMenuOpen(false)}
                   >

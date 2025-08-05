@@ -23,6 +23,10 @@ import CategoriesPage from "./pages/common/CategoriesPage";
 import CategoryDetailPage from "./pages/common/CategoryDetailPage";
 import ShopsPage from "./pages/common/ShopsPage";
 import ShopDetailPage from "./pages/common/ShopDetailPage";
+import CartPage from "./components/common/CartPage";
+import CheckoutPage from "./pages/common/Checkout";
+import CustomerOrdersPage from "./pages/common/CustomerOrderPage";
+import OrderDetailPage from "./pages/common/OrderDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +47,8 @@ const App = () => (
                     <Route path="register" element={<RegisterPage />} />
                     <Route path="*" element={<LoginPage />} />
                   </Route>
+                  <Route path="cart" element={<CartPage />} />
+                  <Route path="order" element={<CheckoutPage />} />
                   <Route path="products" element={<Outlet />} >
                     <Route index element={<ProductListPage />} />
                     <Route path=":id" element={<ProductDetailPage />} />
@@ -54,6 +60,10 @@ const App = () => (
                   <Route path="shops" element={<Outlet />} >
                     <Route index element={<ShopsPage />} />
                     <Route path=":id" element={<ShopDetailPage />} />
+                  </Route>
+                   <Route path="my-orders" element={<Outlet />} >
+                    <Route index element={<CustomerOrdersPage />} />
+                    <Route path=":id" element={<OrderDetailPage />} />
                   </Route>
                   <Route path="/vendor" element={<VendorDashboard />} >
                     <Route path=":id" element={<Outlet />} >
