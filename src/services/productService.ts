@@ -1,6 +1,6 @@
 // src/services/product.service.ts
 import { apiClient } from '@/lib/api';
-import { Product, ProductImage, ProductVariant, ProductOption } from '@/types/products';
+import { Product, ProductImage, ProductVariant, ProductOption, ProductQueryParams } from '@/types/products';
 
 export interface ProductCreatePayload {
   name: string;
@@ -58,23 +58,6 @@ export interface VariantOperationPayload {
   sku?: string;
 }
 
-// Query params
-interface ProductQueryParams {
-  page?: number;
-  limit?: number;
-  search?: string;
-  shop?: string;
-  category?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  inStock?: boolean;
-  isActive?: boolean;
-  isFeatured?: boolean;
-  isBestseller?: boolean;
-  sort?: string;
-  tags?: string[];
-}
-
 export interface ProductResponse {
   products: Product[];
   total: number;
@@ -86,9 +69,11 @@ export const productService = {
   getProducts: async (params?: ProductQueryParams): Promise<ProductResponse> => {
     return apiClient.get<ProductResponse>('/products', { params });
   },
-
+  getProductByShop: async (shopId: string, params?: ProductQueryParams): Promise<ProductResponse> => {
+    return apiClient.get<ProductResponse>(`/products/shops-page/${shopId}`, { params });
+  },
   getProductById: async (id: string): Promise<Product> => {
-    return apiClient.get<Product>(`/products/${id}`);
+    return apiClient.get<Product>(`/products/${id}`, {});
   },
 
   getFeaturedProducts: async (limit: number = 10): Promise<Product[]> => {
@@ -106,8 +91,8 @@ export const productService = {
     return apiClient.get<Product[]>('/products/search', { params: { q: query, ...filters } });
   },
 
-  getRelatedProducts: async (productId: string, limit: number = 4): Promise<Product[]> => {
-    return apiClient.get<Product[]>(`/products/${productId}/related`, { params: { limit } });
+  getRelatedProducts: async (categoryId: string, limit: number = 4): Promise<Product[]> => {
+    return apiClient.get<Product[]>(`/products/categories/${categoryId}`, { params: { limit } });
   },
 
   // Protected endpoints (vendor/admin)
@@ -195,7 +180,7 @@ export const productService = {
     conversionRate: number;
     averageRating?: number;
   }> => {
-    return apiClient.get(`/products/${productId}/metrics`);
+    return apiClient.get(`/products/${productId}/metrics`, {});
   },
 
   // Admin functions

@@ -20,7 +20,7 @@ export const orderService = {
 
   // Get single order
   getOrder: async (id: string): Promise<Order> => {
-    return apiClient.get<Order>(`/orders/${id}`);
+    return apiClient.get<Order>(`/orders/${id}`,{});
   },
 
   // Update order status

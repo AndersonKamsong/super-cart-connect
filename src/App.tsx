@@ -16,6 +16,13 @@ import { ShopStaffManagement } from "./pages/vendor/ShopStaffManagement";
 import { ShopSettings } from "./pages/vendor/ShopSettings";
 import { ShopOrders } from "./pages/vendor/ShopOrderManagementPage";
 import { ShopAnalytics } from "./pages/vendor/ShopAnalytics";
+import ProductListPage from "./pages/common/ProductPage";
+import { CartProvider } from "./contexts/CartContext";
+import ProductDetailPage from "./pages/common/ProductDetailPage";
+import CategoriesPage from "./pages/common/CategoriesPage";
+import CategoryDetailPage from "./pages/common/CategoryDetailPage";
+import ShopsPage from "./pages/common/ShopsPage";
+import ShopDetailPage from "./pages/common/ShopDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -23,34 +30,46 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Outlet />} >
-                  <Route index element={<LoginPage />} />
-                  <Route path="register" element={<RegisterPage />} />
-                  <Route path="*" element={<LoginPage />} />
-                </Route>
-                <Route path="/vendor" element={<VendorDashboard />} >
-                  <Route path=":id" element={<Outlet />} >
-                    <Route path="dashboard" element={<ShopAnalytics />} />
-                    <Route path="products" element={<VendorProductsPage />} />
-                    <Route path="staff" element={<ShopStaffManagement />} />
-                    <Route path="settings" element={<ShopSettings />} />
-                    <Route path="orders" element={<ShopOrders />} />
-                    {/* <Route path="revenue" element={<VendorRevenuePage />} />
-                    <Route path="products" element={<VendorProductsPage />} /> */}
+        <CartProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<Outlet />} >
+                    <Route index element={<LoginPage />} />
+                    <Route path="register" element={<RegisterPage />} />
+                    <Route path="*" element={<LoginPage />} />
                   </Route>
-                </Route>
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Layout>
-          </BrowserRouter>
-        </TooltipProvider>
+                  <Route path="products" element={<Outlet />} >
+                    <Route index element={<ProductListPage />} />
+                    <Route path=":id" element={<ProductDetailPage />} />
+                  </Route>
+                  <Route path="categories" element={<Outlet />} >
+                    <Route index element={<CategoriesPage />} />
+                    <Route path=":id" element={<CategoryDetailPage />} />
+                  </Route>
+                  <Route path="shops" element={<Outlet />} >
+                    <Route index element={<ShopsPage />} />
+                    <Route path=":id" element={<ShopDetailPage />} />
+                  </Route>
+                  <Route path="/vendor" element={<VendorDashboard />} >
+                    <Route path=":id" element={<Outlet />} >
+                      <Route path="dashboard" element={<ShopAnalytics />} />
+                      <Route path="products" element={<VendorProductsPage />} />
+                      <Route path="staff" element={<ShopStaffManagement />} />
+                      <Route path="settings" element={<ShopSettings />} />
+                      <Route path="orders" element={<ShopOrders />} />
+                    </Route>
+                  </Route>
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Layout>
+            </BrowserRouter>
+          </TooltipProvider>
+        </CartProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>

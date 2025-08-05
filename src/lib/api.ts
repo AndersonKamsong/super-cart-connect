@@ -81,7 +81,8 @@ class ApiClient {
   }
 
   async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
-    const queryString = params ? `?${new URLSearchParams(params)}` : '';
+    console.log("params",params.params)
+    const queryString = params?.params ? `?${new URLSearchParams(params?.params)}` : '';
     return this.request<T>('GET', `${endpoint}${queryString}`);
   }
 

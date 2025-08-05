@@ -19,6 +19,7 @@ export interface ProductOption {
 
 export interface Product {
   _id: string;
+  id: string;
   name: string;
   slug: string;
   description?: string;
@@ -73,6 +74,10 @@ export interface ProductQueryParams {
   shop?: string;
   category?: string;
   isActive?: boolean;
-  isFeatured?: boolean;
-  isBestseller?: boolean;
+  isFeatured?: boolean | string;
+  isBestseller?: boolean | string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStock?: boolean;
+  tags?: string[];
 }

@@ -29,7 +29,7 @@ export const authService = {
   },
 
   async getProfile(): Promise<AuthResponse> {
-    return apiClient.get<AuthResponse>('/auth/profile');
+    return apiClient.get<AuthResponse>('/auth/profile',{});
   },
 
   async updateProfile(data: Partial<User>): Promise<User> {

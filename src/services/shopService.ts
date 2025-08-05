@@ -57,9 +57,11 @@ export const shopService = {
   },
 
   getShop: async (id: string): Promise<Shop> => {
-    return apiClient.get<Shop>(`/shops/${id}/detail`);
+    return apiClient.get<Shop>(`/shops/${id}/detail`, {});
   },
-
+  getShops: async (id: string): Promise<Shop> => {
+    return apiClient.get<Shop>(`/shops`, {});
+  },
   updateShop: async (id: string, data: UpdateShopDto): Promise<Shop> => {
     return apiClient.put<Shop>(`/shops/${id}`, data);
   },
@@ -82,7 +84,7 @@ export const shopService = {
   },
 
   getStaff: async (shopId: string): Promise<StaffMember[]> => {
-    return apiClient.get<StaffMember[]>(`/shops/${shopId}/staff`);
+    return apiClient.get<StaffMember[]>(`/shops/${shopId}/staff`, {});
   },
 
   // Delivery Personnel
@@ -99,7 +101,7 @@ export const shopService = {
   },
 
   getDeliveryPersonnel: async (shopId: string): Promise<DeliveryPersonnel[]> => {
-    return apiClient.get<DeliveryPersonnel[]>(`/shops/${shopId}/delivery`);
+    return apiClient.get<DeliveryPersonnel[]>(`/shops/${shopId}/delivery`, {});
   },
 
   // Media Management
@@ -130,7 +132,7 @@ export const shopService = {
 
   // Vendor-specific
   getVendorShops: async (vendorId?: string): Promise<Shop[]> => {
-    return apiClient.get<Shop[]>(`/shops/vendor${vendorId ? `/${vendorId}` : ''}`);
+    return apiClient.get<Shop[]>(`/shops/vendor${vendorId ? `/${vendorId}` : ''}`, {});
   },
 
   // Analytics
@@ -144,15 +146,15 @@ export const shopService = {
       sales: number;
     }>;
   }> => {
-    return apiClient.get(`/shops/${shopId}/analytics`);
+    return apiClient.get(`/shops/${shopId}/analytics`, {});
   },
 
   getShopStats: async (shopId: string): Promise<ShopStats> => {
-    return apiClient.get<ShopStats>(`/shops/${shopId}/stats`);
+    return apiClient.get<ShopStats>(`/shops/${shopId}/stats`, {});
   },
 
   getProductAnalytics: async (shopId: string): Promise<ProductAnalytics[]> => {
-    return apiClient.get<ProductAnalytics[]>(`/shops/${shopId}/analytics/products`);
+    return apiClient.get<ProductAnalytics[]>(`/shops/${shopId}/analytics/products`, {});
   },
 
   // Helper to format monthly data for charts

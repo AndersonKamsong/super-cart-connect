@@ -14,7 +14,7 @@ export const categoryService = {
   },
 
   getCategoryById: async (id: string): Promise<Category> => {
-    return apiClient.get<Category>(`/categories/${id}`);
+    return apiClient.get<Category>(`/categories/${id}`,{});
   },
 
   searchCategories: async (query: string): Promise<Category[]> => {
