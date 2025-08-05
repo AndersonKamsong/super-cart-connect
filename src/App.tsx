@@ -27,6 +27,7 @@ import CartPage from "./components/common/CartPage";
 import CheckoutPage from "./pages/common/Checkout";
 import CustomerOrdersPage from "./pages/common/CustomerOrderPage";
 import OrderDetailPage from "./pages/common/OrderDetailPage";
+import GltfViewer from "./pages/common/GltfViewer";
 
 const queryClient = new QueryClient();
 
@@ -51,7 +52,10 @@ const App = () => (
                   <Route path="order" element={<CheckoutPage />} />
                   <Route path="products" element={<Outlet />} >
                     <Route index element={<ProductListPage />} />
-                    <Route path=":id" element={<ProductDetailPage />} />
+                    <Route path=":id" element={<Outlet />} >
+                      <Route index element={<ProductDetailPage />} />
+                      <Route path="3d" element={<GltfViewer />} />
+                    </Route>
                   </Route>
                   <Route path="categories" element={<Outlet />} >
                     <Route index element={<CategoriesPage />} />
@@ -61,7 +65,7 @@ const App = () => (
                     <Route index element={<ShopsPage />} />
                     <Route path=":id" element={<ShopDetailPage />} />
                   </Route>
-                   <Route path="my-orders" element={<Outlet />} >
+                  <Route path="my-orders" element={<Outlet />} >
                     <Route index element={<CustomerOrdersPage />} />
                     <Route path=":id" element={<OrderDetailPage />} />
                   </Route>

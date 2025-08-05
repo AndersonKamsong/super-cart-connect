@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Product } from '@/types/products';
 import { productService } from '@/services/productService';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Box } from 'lucide-react'; // Added Box icon for 3D view
 import ProductGallery from '@/components/products/ProductGallery';
 import ProductInfo from '@/components/products/ProductInfo';
 import ProductVariants from '@/components/products/ProductVariants';
@@ -15,7 +15,7 @@ import '../../assets/css/ProductDetailPage.css';
 const ProductDetailPage = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { addToCart,cartItems } = useCart();
+    const { addToCart, cartItems } = useCart();
     const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -27,17 +27,11 @@ const ProductDetailPage = () => {
         const fetchProductData = async () => {
             try {
                 setLoading(true);
-
-                // Fetch product details
                 const productData = await productService.getProductById(id!);
-                console.log("productData", productData)
                 setProduct(productData.data);
 
-                // Fetch related products
                 const related = await productService.getRelatedProducts(productData?.data?.category?.id || ''!);
-                console.log("related", related)
                 setRelatedProducts(related.data);
-
                 setError(null);
             } catch (err) {
                 setError('Failed to load product details');
@@ -54,17 +48,13 @@ const ProductDetailPage = () => {
         if (!product) return;
         addToCart({
             productId: product._id || product.id,
-            shopId:product.shop,
+            shopId: product.shop,
             variantId: selectedVariant,
             quantity: quantity,
             price: product.price,
             name: product.name,
             image: product.images?.[0]?.url || ''
         });
-
-        console.log("cartItems",cartItems)
-
-        // Optional: Navigate to cart or show notification
         navigate('/cart');
     };
 
@@ -72,6 +62,10 @@ const ProductDetailPage = () => {
         if (newQuantity < 1) return;
         if (product?.stock && newQuantity > product.stock) return;
         setQuantity(newQuantity);
+    };
+
+    const navigateTo3DView = () => {
+        navigate(`/products/${id}/3d`);
     };
 
     if (loading) {
@@ -140,11 +134,25 @@ const ProductDetailPage = () => {
                         </Button>
                     </div>
 
-                    {/* Add to Cart Button */}
-                    <AddToCartButton
-                        stock={product.stock}
-                        onAddToCart={handleAddToCart}
-                    />
+                    {/* Action Buttons */}
+                    <div className="action-buttons">
+                        <AddToCartButton
+                            stock={product.stock}
+                            onAddToCart={handleAddToCart}
+                        />
+                        
+                        {/* 3D View Button - Only show if product has 3D model */}
+                        {product.has3DModel && (
+                            <Button 
+                                variant="outline"
+                                onClick={navigateTo3DView}
+                                className="view-3d-button"
+                            >
+                                <Box className="mr-2 h-4 w-4" />
+                                View in 3D
+                            </Button>
+                        )}
+                    </div>
 
                     {/* Product Description */}
                     <div className="product-description">
