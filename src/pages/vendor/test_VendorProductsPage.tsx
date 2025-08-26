@@ -171,49 +171,72 @@ export const VendorProductsPage = () => {
 
   const handleFormSubmit = async (values: ProductFormValues) => {
     try {
+      console.log("here")
       setIsSubmitting(true);
       const formData = new FormData();
 
-      // 1. Handle images - append new files
-      files.forEach(file => {
+      // 1. Handle images
+      const imageFiles: File[] = files;
+      const existingImages: Array<{ url: string, alt?: string }> = [];
+      
+      values.images.forEach(async image => {
+        if (image instanceof File) {
+          // imageFiles.push(image);
+        } else if (typeof image === 'object' && image.url) {
+          // Convert blob URLs to Files if needed
+          if (image?.url?.startsWith('blob:')) {
+            const file = await blobUrlToFile(image.url, image.alt || 'product-image');
+            // imageFiles.push(file);
+          } else {
+            existingImages.push(image);
+          }
+        }
+      });
+
+      // Append new image files
+      imageFiles.forEach(file => {
         formData.append('images', file);
       });
 
-      // 2. Handle 3D models - append new files
-      modelFiles.forEach(file => {
-        formData.append('models3D', file);
-      });
-
-      // 3. Append existing images (as JSON string)
-      const existingImages = values.images.filter(img =>
-        typeof img === 'object' && 'url' in img && !img.url.startsWith('blob:')
-      );
+      // Append existing images
       if (existingImages.length > 0) {
         formData.append('existingImages', JSON.stringify(existingImages));
       }
 
-      // 4. Append existing 3D models (as JSON string)
-      const existingModels = values.models3D ? values.models3D.filter(model =>
-        typeof model === 'object' && 'url' in model && !model.url.startsWith('blob:')
-      ) : [];
+      // 2. Handle 3D models
+      const modelFilesToUpload: File[] = modelFiles;
+      const existingModels: Array<{ url: string, name?: string, format?: string }> = [];
+      
+      if (values.models3D) {
+        values.models3D.forEach(async model => {
+          if (model instanceof File) {
+            // modelFilesToUpload.push(model);
+          } else if (typeof model === 'object' && model.url) {
+            // Convert blob URLs to Files if needed
+            if (model?.url?.startsWith('blob:')) {
+              const file = await blobUrlToFile(model.url, model.name || '3d-model');
+              // modelFilesToUpload.push(file);
+            } else {
+              existingModels.push(model);
+            }
+          }
+        });
+      }
+
+      // Append new 3D model files
+      modelFilesToUpload.forEach(file => {
+        formData.append('models3D', file);
+      });
+
+      // Append existing 3D models
       if (existingModels.length > 0) {
         formData.append('existingModels', JSON.stringify(existingModels));
       }
 
-      // 5. Append removed images
-      if (removedImages.length > 0) {
-        formData.append('removedImages', JSON.stringify(removedImages));
-      }
-
-      // 6. Append removed 3D models
-      if (removedModels.length > 0) {
-        formData.append('removedModels', JSON.stringify(removedModels));
-      }
-
-      // 7. Append all other fields
+      // 3. Append all other fields
       Object.entries(values).forEach(([key, value]) => {
-        if (key !== 'images' && key !== 'models3D') {
-          if (Array.isArray(value) || typeof value === 'object') {
+        if (key !== 'images' && key !== 'models3D') { // We've already handled images and models
+          if (key === 'variants' || key === 'tags') {
             formData.append(key, JSON.stringify(value));
           } else if (value !== undefined && value !== null) {
             formData.append(key, value.toString());
@@ -221,17 +244,22 @@ export const VendorProductsPage = () => {
         }
       });
 
-      // 8. Add shop ID for new products
+      // 4. Append removed images if any
+      if (removedImages.length > 0) {
+        formData.append('removedImages', JSON.stringify(removedImages));
+      }
+
+      // 5. Append removed 3D models if any
+      if (removedModels.length > 0) {
+        formData.append('removedModels', JSON.stringify(removedModels));
+      }
+
+      // 6. Add shop ID for new products
       if (!currentProduct && id) {
         formData.append('shop', id);
       }
 
-      console.log('FormData contents:');
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
-
-      // 9. Send the request
+      // 7. Set headers and submit
       const config = {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -255,7 +283,6 @@ export const VendorProductsPage = () => {
       setIsFormOpen(false);
       fetchShopProducts();
     } catch (error) {
-      console.error('Form submission error:', error);
       toast({
         title: "Error",
         description: "Failed to save product",

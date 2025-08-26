@@ -1,5 +1,5 @@
 import { apiClient } from '@/lib/api';
-import { User, AuthResponse } from '@/types';
+import { User, AuthResponse, Address } from '@/types';
 
 interface LoginCredentials {
   email: string;
@@ -18,6 +18,7 @@ interface ChangePasswordData {
   currentPassword: string;
   newPassword: string;
 }
+interface AddressPayload extends Omit<Address, '_id' | 'location'> {}
 
 export const authService = {
   async login(email: string, password: string): Promise<AuthResponse> {
@@ -29,7 +30,7 @@ export const authService = {
   },
 
   async getProfile(): Promise<AuthResponse> {
-    return apiClient.get<AuthResponse>('/auth/profile',{});
+    return apiClient.get<AuthResponse>('/auth/profile', {});
   },
 
   async updateProfile(data: Partial<User>): Promise<User> {
@@ -55,5 +56,17 @@ export const authService = {
   },
   async resendVerification(email: string): Promise<void> {
     return apiClient.post<void>('/auth/forgot-password', { email });
+  },
+
+  async addAddress(addressData: AddressPayload): Promise<Address[]> {
+    return apiClient.post<Address[]>('/users/address', addressData);
+  },
+
+  async updateAddress(addressId: string, addressData: Partial<AddressPayload>): Promise<Address[]> {
+    return apiClient.put<Address[]>(`/users/address/${addressId}`, addressData);
+  },
+
+  async deleteAddress(addressId: string): Promise<Address[]> {
+    return apiClient.delete<Address[]>(`/users/address/${addressId}`);
   },
 };

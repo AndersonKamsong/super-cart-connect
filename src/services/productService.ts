@@ -96,11 +96,11 @@ export const productService = {
   },
 
   // Protected endpoints (vendor/admin)
-  createProduct: async (data: ProductCreatePayload): Promise<Product> => {
+  createProduct: async (data): Promise<Product> => {
     return apiClient.post<Product>('/products', data);
   },
 
-  updateProduct: async (id: string, data: ProductUpdatePayload): Promise<Product> => {
+  updateProduct: async (id: string, data): Promise<Product> => {
     return apiClient.put<Product>(`/products/${id}`, data);
   },
 

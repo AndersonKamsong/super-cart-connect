@@ -4,6 +4,7 @@ export interface User {
   _id: string;
   email: string;
   name: string;
+  phone: string;
   role: 'admin' | 'vendor' | 'customer' | 'delivery';
   avatar?: string;
   createdAt: string;
@@ -141,4 +142,24 @@ export interface PaginatedResponse<T> {
   page: number;
   limit: number;
   totalPages: number;
+}
+
+export interface AddressLocation {
+  type: 'Point';
+  coordinates: [number, number]; // [longitude, latitude]
+}
+
+export interface Address {
+  _id?: string; // Mongoose automatically adds _id to subdocuments
+  name?: string; // e.g., "Home", "Work"
+  street: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  country: string;
+  location?: AddressLocation;
+  isDefault?: boolean;
+  phone?: string; // phone specific to this address
+  instructions?: string;
+  type?: 'home' | 'work' | 'other';
 }

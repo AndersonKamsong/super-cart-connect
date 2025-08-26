@@ -65,7 +65,12 @@ const ProductDetailPage = () => {
     };
 
     const navigateTo3DView = () => {
-        navigate(`/products/${id}/3d`);
+        console.log(product)
+        // const params = new URLSearchParams({
+        //     // Model3DUrl: product
+        // }).toString();
+
+        navigate(`/products/${id}/3d`, { state: { models: product.models3D } });
     };
 
     if (loading) {
@@ -140,10 +145,10 @@ const ProductDetailPage = () => {
                             stock={product.stock}
                             onAddToCart={handleAddToCart}
                         />
-                        
+
                         {/* 3D View Button - Only show if product has 3D model */}
                         {product.has3DModel && (
-                            <Button 
+                            <Button
                                 variant="outline"
                                 onClick={navigateTo3DView}
                                 className="view-3d-button"

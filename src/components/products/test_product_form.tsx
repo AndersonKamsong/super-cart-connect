@@ -281,13 +281,13 @@ export const ProductForm = ({
 
   return (
     <Form {...form}>
-      {/* <form onSubmit={(e)=>{
+      <form onSubmit={(e)=>{
         e.preventDefault()
         console.log("submit")
         form.handleSubmit(onSubmit)
         handleFormSubmit(form)
-      }} className="space-y-6 h-[80vh] overflow-auto"> */}
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 h-[80vh] overflow-auto">
+      }} className="space-y-6 h-[80vh] overflow-auto">
+      {/* <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 h-[80vh] overflow-auto"> */}
         {/* Display form errors at the top */}
         {formErrors.length > 0 && (
           <div className="bg-destructive/15 text-destructive p-4 rounded-md">

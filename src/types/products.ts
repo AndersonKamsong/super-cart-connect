@@ -3,7 +3,13 @@ export interface ProductImage {
   alt?: string;
   _id?: string;
 }
-
+export interface Product3DImage {
+  format?: string;
+  name?: string;
+  url?: string;
+  alt?: string;
+  _id?: string;
+}
 export interface ProductVariant {
   _id?: string;
   options: Record<string, string>; // { size: 'M', color: 'Red' }
@@ -41,6 +47,7 @@ export interface Product {
   views?: number;
   sales?: number;
   createdAt?: string;
+  models3D?: Product3DImage[];
   updatedAt?: string;
 }
 
@@ -56,14 +63,16 @@ export interface ProductFormValues
     | 'sales'
     | 'images'
     | 'variants'
+    | 'models3D'
   > {
   _id?: string;
   shop: string;
   category: string;
-  images: (ProductImage | File)[];
+  images: ProductImage [];
   variants?: ProductVariant[];
   newVariants?: ProductVariant[];
   removedVariantIds?: string[];
+  models3D?: (Product3DImage | File)[];
 }
 
 export interface ProductQueryParams {

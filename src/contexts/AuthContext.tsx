@@ -165,6 +165,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response: AuthResponse = await authService.login(email, password);
       localStorage.setItem('auth_token', response?.data?.token);
       setUser(response?.data);
+      console.log("response?.data",response?.data)
       toast({
         title: "Welcome back!",
         description:response?.data?.isVerified 
